@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<head th:include="blog/index/include_blog::header"></head>
+<body>
+<nav th:include="blog/index/include_blog::nav"  class="navbar navbar-default navbar-custom navbar-fixed-top" ></nav>
+<header class="intro-header"
+        style="background-image: url('/img/first_bg.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="site-heading">
+                    <h1>艺术世界</h1>
+                    <!--<span class="subheading">精彩活动</span>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div id="incomeNum"></div>
+           <div class="clearfix">
+                <p id="flagLoaded" style="display: none; text-align: center;">已全部加载</p>
+                <a id="flagLoad" style="display: none;" class="btn btn-secondary float-right"
+                   href="javascript:void(0)" onclick="nextPage()">更早 &rarr;</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<div th:include="blog/index/include_blog::footer"></div>
+<script type="text/javascript">
+    var limit = 10;
+    var currentPage = 0;//页码
+    var total=0;//数据的数量
+    var prefix = "/artistpage";
+   /*var pagenum= document.getElementById("pagenumber").value;
+   if(pagenum!=null||pagenum!=""){
+
+
+   }*/
+    $(function(){
+        bindList(0);
+
+    });
+    /*首页*/
+    function firstPage() {
+        bindList(0,'first');
+    }
+    /*上一页*/
+    function laterPage() {
+        bindList(currentPage * limit,'later')
+    }
+    /*下一页*/
+    function nextPage() {
+        bindList(currentPage * limit)
+    }
+    /*尾页*/
+    function lastPage() {
+        bindList(currentPage * limit,'last')
+    }
+    /*自己输入页面*/
+    function inputPage() {
+        bindList(currentPage * limit,'last')
+    }
+    function checkArtist(id){
+        layer.open({
+            type : 2,
+            title : '艺术大家',
+            maxmin : true,
+            shadeClose : false, // 点击遮罩关闭层
+            area : [ '800px', '520px' ],
+            content : prefix + '/view/' + id // iframe的url
+        });
+    }
+    function artistWorks(id){
+        layer.open({
+            type : 2,
+            title : '作品集',
+            maxmin : true,
+            shadeClose : false, // 点击遮罩关闭层
+            area : [ '800px', '520px' ],
+            content : prefix + '/artistWorks/' + id // iframe的url
+        });
+    }
+    function bindList(offset) {
+        $
+            .ajax({
+                url : 'artistpage/list?limit=10&offset=' + offset,
+                method : 'get',
+                dataType : 'json',
+                success : function(data) {
+                    var rows = data.rows;
+                    total = data.total;
+                   /* var allpages;//总页面
+                    if(total/9!=0){
+                        allpages=total/9+1;
+                    }else{
+                        allpages=total/9;
+                    }
+                    var nowpage=offset/9;//当前页面*/
+                    var htmlText = "";
+                    for (i = 0; i < rows.length; i++) {
+                        htmlText += '<div class="post-preview"> <div style="height: 90% ;width:20%;margin:0.5% 0.5% ;Float:left">';
+                        if(rows[i].artistpic==null||rows[i].artistpic==""){
+                            htmlText += '<img  height=90% width=90% onclick="checkArtist(\''+rows[i].id+'\')" src="/img/moren.jpg"/>  </div>';
+                        }else{
+                            htmlText += '<img  height=90% width=90% onclick="checkArtist(\''+rows[i].id+'\')" src="'+rows[i].artistpic+'"/>  </div>';
+                        }
+             /*           htmlText += '<h2 class="post-title">';
+                        htmlText += rows[i].title;
+                        htmlText += '</h2>';
+                        htmlText += '</a>';*/
+                        htmlText += ' <ul style="list-style:none">  <li><p class="post-meta">姓名：<a href="javascript:void(0);" onclick="checkArtist(\''+rows[i].id+'\')" style="text-decoration:none">'
+                            + rows[i].artistname
+                            + '</a></p></li><li><p class="post-meta"> 艺名：<a href="javascript:void(0);" onclick="checkArtist(\''+rows[i].id+'\')" style="text-decoration:none">'+ rows[i].artistartname+' </a>' +
+                            '</p></li><li><p class="post-meta"> <a href="javascript:void(0);" onclick="artistWorks(\''+rows[i].id+'\')" style="text-decoration:none">艺术链接 </a></p>' +
+                            '</li><li> <p class="post-meta">称誉:'
+                            + rows[i].artistprise + '</p></li>';
+                        htmlText += '</div>';
+                        htmlText += '<hr>';
+                    }
+                    $("#incomeNum").append(htmlText);
+                  /*  if(pagetype=='first'){
+
+                    }else if(pagetype=='later'){
+
+                    }else if(pagetype=='next'){
+a
+                    }else if(pagetype=='last'){
+
+                    }*/
+
+                    document.getElementById("flagLoad").style.display = "block";
+                    currentPage++;
+                    if (total <= currentPage * limit) {
+                        document.getElementById("flagLoaded").style.display = "block";
+                        document.getElementById("flagLoad").style.display = "none";
+                    }
+                }
+            });
+    }
+</script>
+
+
+</html>
